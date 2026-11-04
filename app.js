@@ -1914,7 +1914,7 @@ menuBtn?.addEventListener("click", (e) => {
 });
 
 contactBtn?.addEventListener("click", () => {
-  window.location.href = "mailto:danyalimrans@gmail.com";
+  window.location.href = "mailto:looped.contactus@gmail.com";
 });
 
 document.addEventListener("click", () => {
