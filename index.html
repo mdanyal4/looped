@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link href="https://fonts.cdnfonts.com/css/proxima-nova-2" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Looped</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .anno-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 20;
+      overflow: visible;
+    }
+    .anno-group {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    .anno-group.visible {
+      opacity: 1;
+    }
+    .anno-label {
+      font-family: "Proxima Nova", sans-serif;
+      font-size: 11.5px;
+      font-weight: 500;
+      color: #8a94aa;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+      margin-bottom: 6px;
+    }
+    .anno-svg {
+      overflow: visible;
+    }
+  </style>
+</head>
+<body class="glow">
+  <div class="app-shell">
+    <header class="topbar-shell">
+      <div class="glass-bar">
+        <div class="brand-wrap">
+          <img src="Looped_logo_zoom_chrome.png" alt="Looped logo" class="brand-logo-img" />
+        </div>
+
+        <div class="topbar-screen-wrap">
+          <div class="topbar-screen" id="topbarStatus" aria-live="polite">
+            <div class="topbar-screen-text" id="topbarStatusText"></div>
+          </div>
+        </div>
+
+        <div class="topbar-actions hidden" id="topbarActions">
+          <div class="user-chip" id="userChip">Not signed in</div>
+          <div class="menu-wrap">
+            <button id="menuBtn" class="menu-btn">☰</button>
+            <div class="menu-dropdown hidden" id="menuDropdown">
+              <button id="settingsBtn" class="menu-item">Settings</button>
+              <button id="contactBtn" class="menu-item">Contact us</button>
+              <button id="logoutBtn" class="menu-item">Log out</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- Landing -->
+      <section class="landing-view" id="landingView">
+
+        <!-- Hero -->
+        <section class="landing-hero">
+          <div class="landing-center">
+            <h1 class="hero-tagline">Keep every application in the loop</h1>
+            <button id="loginBtn" class="primary-btn">Sign in with Google</button>
+            <div class="scroll-hint">scroll to learn more</div>
+          </div>
+        </section>
+
+        <!-- Steps -->
+        <section class="landing-steps">
+          <div class="steps-animation">
+            <div class="landing-steps-wrap">
+              <div class="showcase-mini-card" style="--r:-6;">
+                <div class="mini-card-number">01</div>
+                <div class="mini-card-title">Scan Emails</div>
+                <div class="mini-card-text">Looped scans job-related emails and pulls out useful updates automatically.</div>
+              </div>
+              <div class="showcase-mini-card" style="--r:2;">
+                <div class="mini-card-number">02</div>
+                <div class="mini-card-title">Track Status</div>
+                <div class="mini-card-text">See applications, interviews, assessments, offers, and rejections in one place.</div>
+              </div>
+              <div class="showcase-mini-card" style="--r:6;">
+                <div class="mini-card-number">03</div>
+                <div class="mini-card-title">Export to Sheets</div>
+                <div class="mini-card-text">Send your tracker to Google Sheets whenever you want a saved copy.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Landing preview -->
+        <section class="landing-preview" id="landingPreviewSection">
+
+          <!-- Annotation overlay — JS positions each group -->
+          <div class="anno-overlay" id="annoOverlay">
+            <div class="anno-group" id="anno-sheets">
+              <span class="anno-label">export to sheets</span>
+              <svg class="anno-svg" id="anno-svg-sheets" width="70" height="90" viewBox="0 0 70 90"></svg>
+            </div>
+            <div class="anno-group" id="anno-scan">
+              <span class="anno-label">scans your gmail</span>
+              <svg class="anno-svg" id="anno-svg-scan" width="70" height="90" viewBox="0 0 70 90"></svg>
+            </div>
+            <div class="anno-group" id="anno-add">
+              <span class="anno-label">add manually</span>
+              <svg class="anno-svg" id="anno-svg-add" width="70" height="90" viewBox="0 0 70 90"></svg>
+            </div>
+            <div class="anno-group" id="anno-funnel">
+              <span class="anno-label">visualizes your pipeline</span>
+              <svg class="anno-svg" id="anno-svg-funnel" width="70" height="110" viewBox="0 0 70 110"></svg>
+            </div>
+            <div class="anno-group" id="anno-rate">
+              <span class="anno-label">tracks response rates</span>
+              <svg class="anno-svg" id="anno-svg-rate" width="70" height="110" viewBox="0 0 70 110"></svg>
+            </div>
+          </div>
+
+          <div class="landing-preview-wrap" id="landingPreviewWrap">
+            <div class="table-preview-annotated">
+              <div class="chrome-card chrome-card--applications showcase-preview-card">
+                <div class="card-inner">
+                  <div class="sheet-toolbar">
+                    <div class="toolbar-title">Gmail-powered application tracker</div>
+                    <div class="toolbar-search toolbar-search--preview">
+                      <input
+                        type="text"
+                        placeholder="Search applications..."
+                        disabled
+                        tabindex="-1"
+                      />
+                    </div>
+                    <div class="toolbar-actions preview-toolbar-actions">
+                      <button disabled class="preview-send-btn" id="previewSendBtn">Send to Sheets</button>
+                      <button disabled class="preview-scan-btn" id="previewScanBtn">Scan Emails</button>
+                      <button disabled class="preview-delete-btn" id="previewDeleteBtn">Delete</button>
+                      <button disabled class="preview-add-btn" id="previewAddBtn">+</button>
+                    </div>
+                  </div>
+                  <div class="sheet-wrap">
+                    <table class="sheet-table">
+                      <thead>
+                        <tr>
+                          <th class="col-company">Company</th>
+                          <th class="col-position">Position</th>
+                          <th class="col-location">Location</th>
+                          <th class="col-status">Status</th>
+                          <th class="col-date">Date</th>
+                          <th class="col-source">Source</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr><td>Amazon</td><td>SDE Intern</td><td>Seattle, WA</td><td><span class="badge assessment">Assessment</span></td><td>2026-04-18</td><td>Assessment invitation</td></tr>
+                        <tr><td>Deloitte</td><td>Technology Analyst</td><td>New York, NY</td><td><span class="badge offer">Offer</span></td><td>2026-04-14</td><td>Offer letter</td></tr>
+                        <tr><td>Goldman Sachs</td><td>Summer Analyst</td><td>New York, NY</td><td><span class="badge rejected">Rejected</span></td><td>2026-04-11</td><td>Application update</td></tr>
+                        <tr><td>Boeing</td><td>HR Intern</td><td>Chicago, IL</td><td><span class="badge interview">Interview</span></td><td>2026-04-08</td><td>Interview scheduling</td></tr>
+                        <tr><td>Capital One</td><td>Operations Intern</td><td>McLean, VA</td><td><span class="badge rejected">Rejected</span></td><td>2026-04-06</td><td>Application update</td></tr>
+                        <tr><td>Wayfair</td><td>Business Analyst Intern</td><td>Boston, MA</td><td><span class="badge assessment">Assessment</span></td><td>2026-04-04</td><td>Assessment invitation</td></tr>
+                        <tr><td>Indeed</td><td>Software Engineering Intern</td><td>Austin, TX</td><td><span class="badge assessment">Assessment</span></td><td>2026-04-02</td><td>Next steps</td></tr>
+                        <tr><td>Lockheed Martin</td><td>Technical Intern</td><td>Remote</td><td><span class="badge applied">Applied</span></td><td>2026-03-30</td><td>Application received</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="showcase-bottom-row">
+              <div class="chrome-card chrome-card--applications hidden" id="landingSankeyFrame">
+                <div class="card-inner">
+                  <div class="sheet-toolbar">
+                    <div class="toolbar-title">Application Funnel</div>
+                    <div class="toolbar-subtitle" id="landingSankeySubtitle">—</div>
+                  </div>
+                  <div id="landingSankeyChart" class="viz-body viz-body--compact"></div>
+                </div>
+              </div>
+
+              <div class="chrome-card chrome-card--applications hidden" id="landingResponseStatsFrame">
+                <div class="card-inner">
+                  <div class="sheet-toolbar">
+                    <div class="toolbar-title">Response Rate</div>
+                  </div>
+                  <div class="response-stats">
+                    <div class="stat-row">
+                      <div class="stat-label">Assessments</div>
+                      <div class="stat-value" id="landingAssessmentRatio">—</div>
+                      <div class="stat-sub" id="landingAssessmentSub"></div>
+                    </div>
+                    <div class="stat-row">
+                      <div class="stat-label">Interviews</div>
+                      <div class="stat-value" id="landingInterviewRatio">—</div>
+                      <div class="stat-sub" id="landingInterviewSub"></div>
+                    </div>
+                    <div class="stat-row">
+                      <div class="stat-label">Offers</div>
+                      <div class="stat-value" id="landingOfferRatio">—</div>
+                      <div class="stat-sub" id="landingOfferSub"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <!-- App view -->
+      <section class="hidden" id="appView">
+        <div class="chrome-card chrome-card--applications">
+          <div class="card-inner">
+            <div class="sheet-toolbar">
+              <div class="toolbar-title">Gmail-powered application tracker</div>
+              <div class="toolbar-search">
+                <input
+                  id="tableSearch"
+                  type="text"
+                  placeholder="Search company, role, status..."
+                  autocomplete="off"
+                />
+              </div>
+              <div class="toolbar-actions">
+                <button id="sendToSheetsBtn">Send to Google Sheets</button>
+                <button id="scanBtn">Scan Emails</button>
+                <button id="deleteModeBtn" title="Select rows to delete">Delete</button>
+                <button id="deleteSelectedBtn" class="hidden" title="Delete selected rows">Delete Selected</button>
+                <button id="cancelDeleteBtn" class="hidden" title="Cancel delete mode">Cancel</button>
+                <button id="addRowBtn" title="Add row">+</button>
+              </div>
+            </div>
+            <div class="sheet-wrap">
+              <table class="sheet-table">
+                <thead>
+                  <tr>
+                    <th class="col-company">Company</th>
+                    <th class="col-position">Position</th>
+                    <th class="col-location">Location</th>
+                    <th class="col-status">Status</th>
+                    <th class="col-date">Date</th>
+                    <th class="col-source">Source</th>
+                  </tr>
+                </thead>
+                <tbody id="applicationsTableBody">
+                  <tr class="placeholder-row">
+                    <td colspan="6">No data yet. Click "Scan Emails" to populate your sheet.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-insights">
+          <div class="chrome-card chrome-card--applications hidden" id="sankeyFrame">
+            <div class="card-inner">
+              <div class="sheet-toolbar">
+                <div class="toolbar-title">Application Funnel</div>
+                <div class="toolbar-subtitle" id="sankeySubtitle">—</div>
+              </div>
+              <div id="sankeyChart" class="viz-body viz-body--compact"></div>
+            </div>
+          </div>
+
+          <div class="chrome-card chrome-card--applications hidden" id="responseStatsFrame">
+            <div class="card-inner">
+              <div class="sheet-toolbar">
+                <div class="toolbar-title">Response Rate</div>
+              </div>
+              <div class="response-stats">
+                <div class="stat-row">
+                  <div class="stat-label">Assessments</div>
+                  <div class="stat-value" id="assessmentRatio">—</div>
+                  <div class="stat-sub" id="assessmentSub"></div>
+                </div>
+                <div class="stat-row">
+                  <div class="stat-label">Interviews</div>
+                  <div class="stat-value" id="interviewRatio">—</div>
+                  <div class="stat-sub" id="interviewSub"></div>
+                </div>
+                <div class="stat-row">
+                  <div class="stat-label">Offers</div>
+                  <div class="stat-value" id="offerRatio">—</div>
+                  <div class="stat-sub" id="offerSub"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div class="footer-left">
+          © 2026 Looped
+        </div>
+
+        <div class="footer-right">
+          <button id="privacyBtn" class="footer-link-btn">Privacy</button>
+          <span>•</span>
+          <button id="termsBtn" class="footer-link-btn">Terms</button>
+        </div>
+      </footer>
+
+      <div class="legal-modal hidden" id="legalModal" aria-hidden="true">
+
+        <div class="chrome-card chrome-card--applications legal-modal-card"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="legalModalTitle">
+          <div class="card-inner legal-modal-inner">
+            <button class="legal-modal-close" id="legalModalClose" aria-label="Close modal">×</button>
+
+            <h1 id="legalModalTitle">Privacy Policy</h1>
+
+            <div class="legal-modal-content" id="legalModalContent"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+    <div class="legal-modal hidden" id="settingsModal">
+    <div class="chrome-card chrome-card--applications legal-modal-card">
+      <div class="card-inner legal-modal-inner">
+        <button class="legal-modal-close" id="settingsClose">×</button>
+
+        <h1>Settings</h1>
+
+        <div style="margin-top:20px;">
+          <label>Email scan limit</label>
+          <select id="scanLimitSelect">
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
+            <option value="300">300</option>
+            <option value="500">500</option>
+          </select>
+        </div>
+
+        <div style="margin-top:25px;">
+          <button id="resetScannedBtn">Reset scanned emails</button>
+        </div>
+
+        <div style="margin-top:15px;">
+          <button id="resetAllBtn">Reset all data</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-sankey/0.12.3/d3-sankey.min.js"></script>
+  <script src="app.js"></script>
+
+  <script>
+  function positionAllAnnotations() {
+    const section = document.getElementById('landingPreviewSection');
+    if (!section) return;
+    section.style.position = 'relative';
+
+    // Remove previous renders
+    section.querySelectorAll('.al-anno').forEach(el => el.remove());
+
+    const sR = section.getBoundingClientRect();
+
+    function r(id) {
+      const el = document.getElementById(id);
+      if (!el) return null;
+      const b = el.getBoundingClientRect();
+      return {
+        left:   b.left   - sR.left,
+        top:    b.top    - sR.top,
+        right:  b.right  - sR.left,
+        bottom: b.bottom - sR.top,
+        cx:     b.left   - sR.left + b.width  / 2,
+        cy:     b.top    - sR.top  + b.height / 2,
+        w:      b.width,
+        h:      b.height
+      };
+    }
+
+    const search = document.querySelector('.toolbar-search--preview')?.getBoundingClientRect();
+    const searchBox = search ? {
+      left: search.left - sR.left,
+      top: search.top - sR.top,
+      cx: search.left - sR.left + search.width / 2
+    } : null;
+    const sheets = r('previewSendBtn');
+    const scan   = r('previewScanBtn');
+    const del    = r('previewDeleteBtn');
+    const add    = r('previewAddBtn');
+    const funnel = r('landingSankeyFrame');
+    const rate   = r('landingResponseStatsFrame');
+    if (!searchBox || !sheets || !scan || !del || !add || !funnel || !rate) return;
+
+    // Draws an L-shaped annotation:
+    //   label = pill text label
+    //   lx,ly = label anchor point (center of pill)
+    //   tx,ty = arrow tip (dot)
+    //   elbow = 'h-then-v' or 'v-then-h'
+    function drawL({ id, label, ax, ay, lx, ly, tx, ty, elbow }) {
+      // Compute corner
+      let cx, cy;
+      if (elbow === 'h-then-v') { cx = tx; cy = ay; }
+      else                       { cx = ax; cy = ty; }
+
+      // SVG bounding box
+      const PAD = 16;
+      const x0 = Math.min(ax, lx, tx, cx) - PAD;
+      const y0 = Math.min(ay, ly, ty, cy) - PAD;
+      const x1 = Math.max(ax, lx, tx, cx) + PAD;
+      const y1 = Math.max(ay, ly, ty, cy) + PAD;
+      const W  = x1 - x0;
+      const H  = y1 - y0;
+
+      // Local coords
+      const lax = ax - x0, lay = ay - y0;
+      const llx = lx - x0, lly = ly - y0;
+      const ltx = tx - x0, lty = ty - y0;
+      const lcx = cx - x0, lcy = cy - y0;
+
+      const wrap = document.createElement('div');
+      wrap.className = 'al-anno';
+      wrap.style.cssText = `
+        position: absolute;
+        left: ${x0}px;
+        top:  ${y0}px;
+        pointer-events: none;
+        z-index: 25;
+      `;
+
+      const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+      svg.setAttribute('width',   W);
+      svg.setAttribute('height',  H);
+      svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+      svg.style.overflow = 'visible';
+      svg.style.display  = 'block';
+
+      // Line: from label center → corner → tip
+      const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+      path.setAttribute('d', `M${lax},${lay} L${lcx},${lcy} L${ltx},${lty}`);
+      path.setAttribute('stroke', '#a0a8bb');
+      path.setAttribute('stroke-width', '1.4');
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke-linecap', 'round');
+      path.setAttribute('stroke-linejoin', 'round');
+      svg.appendChild(path);
+
+      // Dot at tip
+      const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      dot.setAttribute('cx', ltx);
+      dot.setAttribute('cy', lty);
+      dot.setAttribute('r', '3');
+      dot.setAttribute('fill', '#a0a8bb');
+      svg.appendChild(dot);
+
+      wrap.appendChild(svg);
+      const labelEl = document.createElement('div');
+      labelEl.className = 'anno-label-modern';
+      labelEl.textContent = label;
+
+      labelEl.style.left = `${llx}px`;
+      labelEl.style.top = `${lly}px`;
+
+      wrap.appendChild(labelEl);
+      section.appendChild(wrap);
+    }
+
+    const GAP = 0; // tips land exactly on element edges
+
+    /*
+    ANNOTATION SYSTEM (VERY IMPORTANT)
+
+    ax, ay → ARROW START (where the line begins)
+      - controls arrow shape
+      - changing this moves the LINE, not the label
+
+    lx, ly → LABEL POSITION
+      - ONLY moves the text label
+      - does NOT affect arrow shape (after we fixed system)
+
+    tx, ty → ARROW TIP (dot position)
+      - where the arrow points to
+      - move this to change what the arrow targets
+
+    DIRECTION RULES:
+      - increase X → moves RIGHT
+      - decrease X → moves LEFT
+      - increase Y → moves DOWN
+      - decrease Y → moves UP
+
+    IMPORTANT:
+      - use SMALL changes (±10–40)
+      - large values (like 900) will break layout visually
+    */
+
+    // 1. ctrl + f
+    drawL({
+      id: 'search',
+      label: 'Filter by company, position, location, status, and more',
+      ax: searchBox.cx,
+      ay: searchBox.top - 70,
+      lx: searchBox.cx,
+      ly: searchBox.top - 57,
+      tx: searchBox.cx,
+      ty: searchBox.top,
+      elbow: 'h-then-v'
+    });
+
+    // 2. export to sheets
+    drawL({
+      id: 'sheets',
+      label: 'Export to google sheets',
+      ax: sheets.cx + 95,
+      ay: sheets.top - 70,
+      lx: sheets.cx + 161,
+      ly: sheets.top - 57,
+      tx: sheets.cx,
+      ty: sheets.top,
+      elbow: 'h-then-v'
+    });
+
+    // 3. scans your gmail
+    drawL({
+      id: 'scan',
+      label: 'Scans your gmail',
+      ax: scan.cx + 45,
+      ay: scan.top - 36,
+      lx: scan.cx + 91,
+      ly: scan.top - 22,
+      tx: scan.cx,
+      ty: scan.top,
+      elbow: 'h-then-v'
+    });
+
+    // 4. delete rows
+    drawL({
+      id: 'delete',
+      label: 'Delete rows',
+      ax: del.cx + 125,
+      ay: del.bottom + 38,
+      lx: del.cx + 150,
+      ly: del.bottom + 51,
+      tx: del.cx,
+      ty: del.bottom,
+      elbow: 'h-then-v'
+    });
+
+    // 5. add manually
+    drawL({
+      id: 'add',
+      label: 'Insert rows manually',
+      ax: add.right + 110,
+      ay: add.cy,
+      lx: add.right + 110,
+      ly: add.cy + 12,
+      tx: add.right,
+      ty: add.cy,
+      elbow: 'h'
+    });
+
+    // 6. funnel
+    drawL({
+      id: 'funnel',
+      label: 'Sankey diagram',
+      ax: funnel.left - 75,
+      ay: funnel.top + 20,
+      lx: funnel.left - 75,
+      ly: funnel.top + 20,
+      tx: funnel.left + 18,
+      ty: funnel.top + 64,
+      elbow: 'v-then-h'
+    });
+
+    // 7. response rates
+    drawL({
+      id: 'rate',
+      label: 'Tracks response rates',
+      ax: rate.right + 110,
+      ay: rate.cy,
+      lx: rate.right + 100,
+      ly: rate.cy + 12,
+      tx: rate.right - 10,
+      ty: rate.cy,
+      elbow: 'h-then-v'
+    });
+  }
+
+  window.addEventListener('load', () => setTimeout(positionAllAnnotations, 600));
+  window.addEventListener('resize', positionAllAnnotations);
+</script>
+</body>
+</html>
